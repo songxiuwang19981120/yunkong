@@ -1,0 +1,108 @@
+{extend name='common/_container'} {block name="content"}
+<div class="row">
+	<div class="col-sm-12">
+		<div class="ibox float-e-margins">
+			<div class="ibox-content"> 
+				<div class="row row-lg"> 
+					<div class="col-sm-12"> 
+						<div class="row" id="searchGroup">
+							<div class="col-sm-2">
+								<div class="input-group">
+									<div class="input-group-btn">
+										<button data-toggle="dropdown" class="btn btn-white dropdown-toggle" type="button">账户</button>
+									</div>
+									<input type="text" autocomplete="off" class="form-control" id="uid" placeholder="账户" />
+								</div>
+							</div>
+							<div class="col-sm-2">
+								<div class="input-group">
+									<div class="input-group-btn">
+										<button data-toggle="dropdown" class="btn btn-white dropdown-toggle" type="button">视频id</button>
+									</div>
+									<input type="text" autocomplete="off" class="form-control" id="aweme_id" placeholder="视频id" />
+								</div>
+							</div>
+							<div class="col-sm-2">
+								<div class="input-group">
+									<div class="input-group-btn">
+										<button data-toggle="dropdown" class="btn btn-white dropdown-toggle" type="button">收藏数</button>
+									</div>
+									<input type="text" autocomplete="off" class="form-control" id="collect_count" placeholder="收藏数" />
+								</div>
+							</div>
+							<!-- search end -->
+							<div class="col-sm-1">
+								<button type="button" class="btn btn-success " onclick="CodeGoods.search()" id="">
+									<i class="fa fa-search"></i>&nbsp;搜索
+								</button>
+							</div>
+						</div>
+						<div class="btn-group-sm" id="CodeGoodsTableToolbar" role="group">
+						</div>
+						<table id="CodeGoodsTable" data-mobile-responsive="true" data-click-to-select="true">
+							<thead><tr><th data-field="selectItem" data-checkbox="true"></th></tr></thead>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script>
+	var CodeGoods = {id: "CodeGoodsTable",seItem: null,table: null,layerIndex: -1};
+
+	CodeGoods.initColumn = function () {
+ 		return [
+ 			{field: 'selectItem', checkbox: true},
+ 			{title: '编号', field: 'pastmembervideodata_id', visible: true, align: 'center', valign: 'middle',sortable: true},
+ 			{title: '账户', field: 'uid', visible: true, align: 'center', valign: 'middle',sortable: true},
+ 			{title: '视频id', field: 'aweme_id', visible: true, align: 'center', valign: 'middle',sortable: true},
+ 			{title: '播放数', field: 'play_num', visible: true, align: 'center', valign: 'middle',sortable: true},
+ 			{title: '分享数', field: 'share_count', visible: true, align: 'center', valign: 'middle',sortable: true},
+ 			{title: '收藏数', field: 'collect_count', visible: true, align: 'center', valign: 'middle',sortable: true},
+ 			{title: '下载数', field: 'download_count', visible: true, align: 'center', valign: 'middle',sortable: true},
+ 			{title: '更新时间', field: 'updata_time', visible: true, align: 'center', valign: 'middle',sortable: true,formatter:CodeGoods.updata_timeFormatter},
+ 		];
+ 	};
+
+	CodeGoods.updata_timeFormatter = function(value,row,index) {
+		if(value){
+			return formatDateTime(value,'Y-m-d H:i:s');	
+		}
+	}
+
+	CodeGoods.formParams = function() {
+		var queryData = {};
+		queryData['offset'] = 0;
+		queryData['uid'] = $("#uid").val();
+		queryData['aweme_id'] = $("#aweme_id").val();
+		queryData['collect_count'] = $("#collect_count").val();
+		queryData['updata_time'] = $("#updata_time").val();
+		return queryData;
+	}
+
+	CodeGoods.check = function () {
+		var selected = $('#' + this.id).bootstrapTable('getSelections');
+		if(selected.length == 0){
+			Feng.info("请先选中表格中的某一记录！");
+			return false;
+		}else{
+			CodeGoods.seItem = selected;
+			return true;
+		}
+	};
+
+	CodeGoods.search = function() {
+		CodeGoods.table.refresh({query : CodeGoods.formParams()});
+	};
+
+	$(function() {
+		var defaultColunms = CodeGoods.initColumn();
+		var url = location.search;
+		var table = new BSTable(CodeGoods.id, Feng.ctxPath+"/PastMemberVideoData/index"+url,defaultColunms,20);
+		table.setPaginationType("server");
+		table.setQueryParams(CodeGoods.formParams());
+		CodeGoods.table = table.init();
+	});
+</script>
+{/block}
